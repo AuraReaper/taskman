@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/AuraReaper/taskman/models"
@@ -65,11 +66,19 @@ func (s *Store) Delete(id int) error {
 		return err
 	}
 
+	isIDPresent := false
+
 	var newTasks []models.Task
 	for _, task := range tasks {
-		if task.ID != id {
-			newTasks = append(newTasks, task)
+		if task.ID == id {
+			isIDPresent = true
+			continue
 		}
+		newTasks = append(newTasks, task)
+	}
+
+	if isIDPresent == false {
+		return fmt.Errorf("the task with ID %v not present\n", id)
 	}
 
 	return s.writeAll(newTasks)
