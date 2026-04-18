@@ -77,7 +77,7 @@ func (s *Store) Delete(id int) error {
 		newTasks = append(newTasks, task)
 	}
 
-	if isIDPresent == false {
+	if !isIDPresent {
 		return fmt.Errorf("the task with ID %v not present\n", id)
 	}
 
@@ -90,31 +90,31 @@ func (s *Store) UpdateStatus(id int) error {
 		return err
 	}
 
+	isIDPresent := false
+
 	for i := range tasks {
 		if tasks[i].ID == id {
+			isIDPresent = true
 			tasks[i].Status = "COMPLETED"
 		}
+	}
+
+	if !isIDPresent {
+		return fmt.Errorf("the task with id %v not present\n", id)
 	}
 
 	return s.writeAll(tasks)
 }
 
 func (s *Store) GetNextId() (int, error) {
-	file, err := os.ReadFile(s.filePath)
+	tasks, err := s.ReadAll()
 	if err != nil {
 		return -1, err
 	}
 
-	if len(file) == 0 {
+	if len(tasks) == 0 {
 		return 1, nil
 	}
-
-	var tasks []models.Task
-	err = json.Unmarshal(file, &tasks)
-	if err != nil {
-		return -1, err
-	}
-
 	maxId := 0
 
 	for _, task := range tasks {
