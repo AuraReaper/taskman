@@ -25,6 +25,9 @@ func deleteTask(args []string, store *storage.Store) error {
 		fmt.Println("require task id")
 		return nil
 	}
-	id, _ := strconv.Atoi(args[0])
+	id, err := strconv.Atoi(args[0])
+	if err != nil {
+		return fmt.Errorf("invalid id %v", id)
+	}
 	return store.Delete(id)
 }
